@@ -193,6 +193,7 @@ module FakeFS
       def create(basename, tmpdir=nil, max_try: nil, **opts)
         origdir = tmpdir
         tmpdir ||= self.tmpdir()
+        n = nil
         prefix, suffix = basename
         prefix = (String.try_convert(prefix) or
                   raise ArgumentError, "unexpected prefix: #{prefix.inspect}")
