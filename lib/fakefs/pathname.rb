@@ -37,7 +37,7 @@ module FakeFS
         raise ArgumentError, "pathname contains \\0: #{@path.inspect}"
       end
 
-      taint if @path.tainted?
+      #taint if @path.tainted?
     end
 
     def freeze
@@ -48,13 +48,13 @@ module FakeFS
 
     def taint
       super
-      @path.taint
+      #@path.taint
       self
     end
 
     def untaint
       super
-      @path.untaint
+      #@path.untaint
       self
     end
 

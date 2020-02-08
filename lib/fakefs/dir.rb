@@ -199,7 +199,7 @@ module FakeFS
           opts = []
         end
         tmpdir, = *rest
-        if $SAFE > 0 && tmpdir.tainted?
+        if $SAFE > 0 #&& tmpdir.tainted?
           tmpdir = '/tmp'
         else
           tmpdir ||= self.tmpdir
