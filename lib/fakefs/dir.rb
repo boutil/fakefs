@@ -196,10 +196,10 @@ module FakeFS
         prefix, suffix = basename
         prefix = (String.try_convert(prefix) or
                   raise ArgumentError, "unexpected prefix: #{prefix.inspect}")
-        prefix = prefix.delete(UNUSABLE_CHARS)
+        prefix = prefix.delete("#{File::SEPARATOR}#{File::ALT_SEPARATOR}")
         suffix &&= (String.try_convert(suffix) or
                     raise ArgumentError, "unexpected suffix: #{suffix.inspect}")
-        suffix &&= suffix.delete(UNUSABLE_CHARS)
+        suffix &&= suffix.delete("#{File::SEPARATOR}#{File::ALT_SEPARATOR}")
         begin
           t = Time.now.strftime("%Y%m%d")
           path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"\
