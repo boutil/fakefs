@@ -190,30 +190,27 @@ module FakeFS
         path << suffix
       end
 
-      def create(basename, *rest)
-        if (opts = Hash.try_convert(rest[-1]))
-          opts = opts.dup if rest.pop.equal?(opts)
-          max_try = opts.delete(:max_try)
-          opts = [opts]
-        else
-          opts = []
-        end
-        tmpdir, = *rest
-        if $SAFE > 0 #&& tmpdir.tainted?
-          tmpdir = '/tmp'
-        else
-          tmpdir ||= self.tmpdir
-        end
-        n = nil
+      def create(basename, tmpdir=nil, max_try: nil, **opts)
+        origdir = tmpdir
+        tmpdir ||= self.tmpdir()
+        prefix, suffix = basename
+        prefix = (String.try_convert(prefix) or
+                  raise ArgumentError, "unexpected prefix: #{prefix.inspect}")
+        prefix = prefix.delete(UNUSABLE_CHARS)
+        suffix &&= (String.try_convert(suffix) or
+                    raise ArgumentError, "unexpected suffix: #{suffix.inspect}")
+        suffix &&= suffix.delete(UNUSABLE_CHARS)
         begin
-          path = File.join(tmpdir, make_tmpname(basename, n))
-          yield(path, n, *opts)
+          t = Time.now.strftime("%Y%m%d")
+          path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"\
+                 "#{n ? %[-#{n}] : ''}#{suffix||''}"
+          path = File.join(tmpdir, path)
+          yield(path, n, opts, origdir)
         rescue Errno::EEXIST
           n ||= 0
           n += 1
-          retry if !max_try || n < max_try
-          raise "cannot generate temporary name using `#{basename}' " \
-            "under `#{tmpdir}'"
+          retry if !max_try or n < max_try
+          raise "cannot generate temporary name using `#{basename}' under `#{tmpdir}'"
         end
         path
       end
